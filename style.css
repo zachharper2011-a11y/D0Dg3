@@ -1,0 +1,11 @@
+/* Simple styles for Dodge! */
+html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+#game{display:block;background:#0b1220;width:100vw;height:100vh}
+#ui{position:fixed;left:12px;top:12px;color:#e6eef8;z-index:10}
+#ui h1{margin:0;font-size:20px}
+#score{margin-top:6px;font-weight:600}
+#controls{margin-top:6px;font-size:12px;color:#c8d5e6}
+#restart{margin-top:8px;padding:6px 10px;background:#ff6b6b;border:none;color:white;border-radius:6px}
+
+/* make the canvas cover the full viewport */
+canvas{width:100%;height:100%}
