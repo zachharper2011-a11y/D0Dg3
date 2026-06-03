@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>D0Dg3!</title>
+  <title>d0dg3!</title>
   <style> 
     html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
 #game{display:block;background:#0b1220;width:100vw;height:100vh}
@@ -18,7 +18,7 @@ canvas{width:100%;height:100%}
 </head>
 <body>
   <div id="ui">
-    <h1>D0Dg3!</h1>
+    <h1>d0dg3!</h1>
     <div id="score">Score: 0</div>
     <div id="controls">Move: ← → or A D • Tap left/right on mobile</div>
     <button id="restart" hidden>Restart</button>
@@ -43,16 +43,34 @@ function playMusic(){
 }
 
 let W = 800, H = 600;
+let stars = [];
+const starCount = 180;
+
+function createStars(){
+  stars = [];
+  for(let i=0;i<starCount;i++){
+    stars.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      size: Math.random() * 3 + 0.7,
+      alpha: 0.5 + Math.random() * 0.5,
+      speed: 20 + Math.random() * 45
+    });
+  }
+}
+
 function resize(){
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   W = canvas.width; H = canvas.height;
+  createStars();
 }
 window.addEventListener('resize', resize);
 resize();
 
 // Player
 const player = {w:60,h:18,x:0,y:0,speed:520,dir:0};
+
 // Enemies
 let enemies = [];
 let running = true;
@@ -108,11 +126,85 @@ function update(dt){
 
 function draw(){
   ctx.clearRect(0,0,W,H);
-  // background
-  ctx.fillStyle = '#071023'; ctx.fillRect(0,0,W,H);
+  // space background
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0, '#010114');
+  bg.addColorStop(0.4, '#08112b');
+  bg.addColorStop(1, '#060d1a');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,W,H);
 
-  // player
-  ctx.fillStyle = '#4ee1a7'; ctx.fillRect(player.x, player.y, player.w, player.h);
+  // bright nebula
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const nebula = ctx.createRadialGradient(W * 0.8, H * 0.15, 0, W * 0.8, H * 0.15, W * 0.28);
+  nebula.addColorStop(0, 'rgba(95, 155, 255, 0.45)');
+  nebula.addColorStop(0.5, 'rgba(95, 155, 255, 0.15)');
+  nebula.addColorStop(1, 'rgba(8, 18, 42, 0)');
+  ctx.fillStyle = nebula;
+  ctx.fillRect(0,0,W,H);
+
+  // stars
+  stars.forEach(star => {
+    star.y += star.speed * 0.04;
+    if(star.y > H) star.y = 0;
+    const flicker = star.alpha * (0.8 + 0.25 * Math.sin(performance.now() / 120 + star.x));
+    ctx.fillStyle = `rgba(255,255,255,${flicker})`;
+    ctx.fillRect(star.x, star.y, star.size, star.size);
+  });
+
+  // big sparkles
+  for(let i=0;i<6;i++){
+    const x = (i + 0.5) / 6 * W;
+    const y = H * 0.1 + (i % 2) * H * 0.08;
+    const radius = 2 + (i % 3);
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fill();
+  }
+
+  ctx.restore();
+
+  // planet glow
+  const planet = ctx.createRadialGradient(W * 0.25, H * 0.2, 0, W * 0.25, H * 0.2, W * 0.16);
+  planet.addColorStop(0, 'rgba(255, 200, 120, 0.35)');
+  planet.addColorStop(0.6, 'rgba(255, 140, 90, 0.08)');
+  planet.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = planet;
+  ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = '#3b5298';
+  ctx.beginPath();
+  ctx.arc(W * 0.25, H * 0.2, W * 0.09, 0, Math.PI * 2);
+  ctx.fill();
+
+  // smeared player trail
+  if(player.dir !== 0){
+    ctx.fillStyle = 'rgba(78, 225, 167, 0.18)';
+    for(let i=1;i<=4;i++){
+      const trailX = player.x - player.dir * i * 10;
+      const trailW = player.w + i * 4;
+      ctx.fillRect(trailX, player.y, trailW, player.h);
+    }
+  }
+
+  // player ship
+  ctx.save();
+  ctx.translate(player.x + player.w / 2, player.y + player.h / 2);
+  ctx.fillStyle = '#4ee1a7';
+  ctx.beginPath();
+  ctx.moveTo(0, -player.h - 6);
+  ctx.lineTo(player.w / 1.8, player.h + 4);
+  ctx.lineTo(player.w / 4, player.h - 4);
+  ctx.lineTo(-player.w / 4, player.h - 4);
+  ctx.lineTo(-player.w / 1.8, player.h + 4);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = '#b8fff2';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
 
   // enemies
   ctx.fillStyle = '#ff6b6b';
