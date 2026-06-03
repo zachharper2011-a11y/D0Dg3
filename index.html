@@ -190,16 +190,7 @@ let laserTimer = 0; // duration of laser in seconds
 let hasShield = false;
 let shieldHits = 0;
 
-// Story state
-let showIntro = true;
-const storyIntro = 'You are the last pilot of the Aria, fleeing a dying starfield. Keep moving — avoid the fall of debris and reach the next waypoint.';
-const storyLines = {
-  1: 'Scouts report light debris; calibrate thrusters and keep steady.',
-  2: 'Sensors pick up denser fragments. The currents grow restless.',
-  3: 'A cluster of automated sentries patrols these lanes — move carefully.',
-  4: 'The nebula deepens; visibility drops. Trust your instruments.',
-  5: 'You approach the wreck of the Armada — salvage what you can, survive what you can.'
-};
+// Story removed: start immediately without intro/snippets
 
 function applyUpgrades(levelValue){
   // Minor stat bump per level
@@ -272,7 +263,7 @@ function continueLevel(){
 }
 
 function update(dt){
-  if(paused || showIntro) return;
+  if(paused) return;
 
   elapsedTime += dt;
 
@@ -320,8 +311,8 @@ function update(dt){
     spawnInterval = Math.max(350, spawnInterval * 0.992);
   }
 
-  // spawn upgrades randomly (only in first 60 seconds)
-  if(elapsedTime < 60 && Math.random() < 0.025 * dt) spawnUpgrade();
+  // spawn upgrades randomly (no time cutoff)
+  if(Math.random() < 0.025 * dt) spawnUpgrade();
 
   // move upgrades
   for(let i = upgrades.length - 1; i >= 0; i--){
@@ -536,34 +527,9 @@ function draw(){
     ctx.font = '14px monospace';
     ctx.fillStyle = '#ffffff';
     ctx.fillText('[ press any key to continue ]', W / 2, H / 2 + 8);
-    // show a little story snippet for this upcoming level
-    const snippet = storyLines[pendingLevel] || '';
-    if(snippet){
-      const wrap = snippet.match(/.{1,50}(?:\s|$)/g) || [snippet];
-      ctx.font = '12px monospace';
-      ctx.fillStyle = '#ffff00';
-      for(let i=0;i<wrap.length;i++){
-        ctx.fillText(wrap[i].trim(), W/2, H/2 + 38 + i*16);
-      }
-    }
   }
 
-  // intro overlay
-  if(showIntro){
-    ctx.fillStyle = 'rgba(0,0,0,0.85)';
-    ctx.fillRect(0,0,W,H);
-    ctx.fillStyle = '#4ee1a7';
-    ctx.font = 'bold 48px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('D0DG3', W/2, H*0.32);
-    ctx.font = '12px monospace';
-    ctx.fillStyle = '#ffff00';
-    const lines = storyIntro.match(/.{1,60}(?:\s|$)/g) || [storyIntro];
-    for(let i=0;i<lines.length;i++) ctx.fillText(lines[i].trim(), W/2, H*0.42 + i*18);
-    ctx.font = '12px monospace';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText('[ press any key to start ]', W/2, H*0.62);
-  }
+  // intro removed — game starts immediately
 }
 
 function loop(ts){
@@ -585,7 +551,6 @@ function loop(ts){
 
 // controls
 window.addEventListener('keydown', e => {
-  if(showIntro){ if(!audioStarted) startAudio(); showIntro = false; return; }
   if(!audioStarted) startAudio();
   if(levelTransition){ continueLevel(); return; }
   if(e.key==='ArrowLeft' || e.key==='a') player.dir = -1;
@@ -596,7 +561,6 @@ window.addEventListener('keyup', e => { if(['ArrowLeft','ArrowRight','a','d'].in
 // touch controls
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
-  if(showIntro){ if(!audioStarted) startAudio(); showIntro = false; return; }
   if(!audioStarted) startAudio();
   if(levelTransition){ continueLevel(); return; }
   const x = e.touches[0].clientX;
@@ -605,7 +569,7 @@ canvas.addEventListener('touchstart', e => {
 canvas.addEventListener('touchend', () => { player.dir = 0; });
 
 canvas.addEventListener('pointerdown', () => {
-  if(showIntro){ if(!audioStarted) startAudio(); showIntro = false; return; }
+  if(!audioStarted) startAudio();
   if(levelTransition) continueLevel();
 });
 
