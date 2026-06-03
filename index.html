@@ -29,6 +29,19 @@ const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
 const restartBtn = document.getElementById('restart');
 
+const music = new Audio('D0DG3 soudtrack.wav');
+music.loop = true;
+music.volume = 0.5;
+let musicStarted = false;
+function playMusic(){
+  if (musicStarted) return;
+  musicStarted = true;
+  music.currentTime = 0;
+  music.play().catch(() => {
+    // Autoplay may be blocked until the user interacts with the page
+  });
+}
+
 let W = 800, H = 600;
 function resize(){
   canvas.width = window.innerWidth;
@@ -49,6 +62,7 @@ let spawnInterval = 900; // ms
 let score = 0;
 
 function reset(){
+  playMusic();
   enemies = [];
   running = true;
   lastTime = performance.now();
@@ -124,11 +138,20 @@ function loop(ts){
 }
 
 // controls
-window.addEventListener('keydown', e => { if(e.key==='ArrowLeft' || e.key==='a') player.dir = -1; if(e.key==='ArrowRight' || e.key==='d') player.dir = 1; });
+window.addEventListener('keydown', e => {
+  if (!musicStarted) playMusic();
+  if(e.key==='ArrowLeft' || e.key==='a') player.dir = -1;
+  if(e.key==='ArrowRight' || e.key==='d') player.dir = 1;
+});
 window.addEventListener('keyup', e => { if(['ArrowLeft','ArrowRight','a','d'].includes(e.key)) player.dir = 0; });
 
 // touch controls 
-canvas.addEventListener('touchstart', e => { e.preventDefault(); const x = e.touches[0].clientX; player.dir = x < W/2 ? -1 : 1; });
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (!musicStarted) playMusic();
+  const x = e.touches[0].clientX;
+  player.dir = x < W/2 ? -1 : 1;
+});
 canvas.addEventListener('touchend', e => { player.dir = 0; });
 
 restartBtn.addEventListener('click', () => { reset(); });
