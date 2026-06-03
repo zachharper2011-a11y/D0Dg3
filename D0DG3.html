@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dodge! — Simple JS Game</title>
+  <style> 
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+#game{display:block;background:#0b1220;width:100vw;height:100vh}
+#ui{position:fixed;left:12px;top:12px;color:#e6eef8;z-index:10}
+#ui h1{margin:0;font-size:20px}
+#score{margin-top:6px;font-weight:600}
+#controls{margin-top:6px;font-size:12px;color:#c8d5e6}
+#restart{margin-top:8px;padding:6px 10px;background:#ff6b6b;border:none;color:white;border-radius:6px}
+
+/* make the canvas cover the full viewport */
+canvas{width:100%;height:100%}
+  </style>
+</head>
+<body>
+  <div id="ui">
+    <h1>Dodge!</h1>
+    <div id="score">Score: 0</div>
+    <div id="controls">Move: ← → or A D • Tap left/right on mobile</div>
+    <button id="restart" hidden>Restart</button>
+  </div>
+  <canvas id="game"></canvas>
+  <script> const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const restartBtn = document.getElementById('restart');
+
+let W = 800, H = 600;
+function resize(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  W = canvas.width; H = canvas.height;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// Player
+const player = {w:60,h:18,x:0,y:0,speed:520,dir:0};
+// Enemies
+let enemies = [];
+let running = true;
+let lastTime = 0;
+let spawnTimer = 0;
+let spawnInterval = 900; // ms
+let score = 0;
+
+function reset(){
+  enemies = [];
+  running = true;
+  lastTime = performance.now();
+  spawnTimer = 0;
+  spawnInterval = 900;
+  score = 0;
+  player.x = W/2 - player.w/2;
+  player.y = H - player.h - 30;
+  restartBtn.hidden = true;
+  requestAnimationFrame(loop);
+}
+
+function spawn(){
+  const w = 20 + Math.random()*60;
+  enemies.push({x:Math.random()*(W-w), y:-20, w, h:16, speed:120 + Math.random()*220});
+}
+
+function rectsCollide(a,b){
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+function update(dt){
+  // player movement
+  player.x += player.dir * player.speed * dt;
+  if(player.x < 0) player.x = 0;
+  if(player.x + player.w > W) player.x = W - player.w;
+
+  // spawn enemies
+  spawnTimer += dt*1000;
+  if(spawnTimer > spawnInterval){ spawnTimer = 0; spawn(); spawnInterval = Math.max(300, spawnInterval*0.995); }
+
+  // update enemies
+  for(let i=enemies.length-1;i>=0;i--){
+    const e = enemies[i];
+    e.y += e.speed * dt;
+    if(e.y > H) enemies.splice(i,1);
+    else if(rectsCollide(e, player)) { running = false; }
+  }
+
+  // score grows with time and cleared enemies
+  score += dt * 10;
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  // background
+  ctx.fillStyle = '#071023'; ctx.fillRect(0,0,W,H);
+
+  // player
+  ctx.fillStyle = '#4ee1a7'; ctx.fillRect(player.x, player.y, player.w, player.h);
+
+  // enemies
+  ctx.fillStyle = '#ff6b6b';
+  enemies.forEach(e => ctx.fillRect(e.x, e.y, e.w, e.h));
+
+  // ground line
+  ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(0, H-10, W, 10);
+}
+
+function loop(ts){
+  const dt = (ts - lastTime)/1000;
+  lastTime = ts;
+  if(running){ update(dt); draw(); scoreEl.textContent = 'Score: ' + Math.floor(score);
+    requestAnimationFrame(loop);
+  } else {
+    // game over
+    draw();
+    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = '#fff'; ctx.font = '28px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Game Over — Score: ' + Math.floor(score), W/2, H/2 - 10);
+    restartBtn.hidden = false;
+  }
+}
+
+// controls
+window.addEventListener('keydown', e => { if(e.key==='ArrowLeft' || e.key==='a') player.dir = -1; if(e.key==='ArrowRight' || e.key==='d') player.dir = 1; });
+window.addEventListener('keyup', e => { if(['ArrowLeft','ArrowRight','a','d'].includes(e.key)) player.dir = 0; });
+
+// touch controls: tap left/right halves
+canvas.addEventListener('touchstart', e => { e.preventDefault(); const x = e.touches[0].clientX; player.dir = x < W/2 ? -1 : 1; });
+canvas.addEventListener('touchend', e => { player.dir = 0; });
+
+restartBtn.addEventListener('click', () => { reset(); });
+
+// initialize positions and start
+player.x = W/2 - player.w/2; player.y = H - player.h - 30;
+lastTime = performance.now();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
