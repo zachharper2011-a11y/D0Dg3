@@ -1,4 +1,5 @@
-### Hi!!!! 
+# Welcome to d0dg3!!!
+![Hackatime Badge](https://hackatime-badge.hackclub.com/JonButNotReally/d0dg3-1)
 ### This is my game i call d0dg3 (pronounced dodge). it's a space themed dodge game i made in html. Enjoy <3.
 
 All you gotta do is click on the link below :>
