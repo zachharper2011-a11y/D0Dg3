@@ -204,7 +204,7 @@ const levelEl = document.getElementById('level');
 
 // Active upgrades
 let hasLaser = false;
-let laserCooldown = 0;
+let laserCooldown =0;
 let laserTimer = 0; // duration of laser in seconds
 let hasShield = false;
 let shieldHits = 0;
@@ -235,7 +235,7 @@ function spawnUpgrade(){
 }
 
 function activateUpgrade(type){
-  if(type === 'laser'){ hasLaser = true; laserTimer = 15; upgradeMessage = 'Upgrade: LASER (15s)'; }
+  if(type === 'laser'){ hasLaser = true; laserTimer = 30; upgradeMessage = 'Upgrade: LASER (30s)'; }
   else if(type === 'shield'){ hasShield = true; shieldHits = 2; upgradeMessage = 'Upgrade: SHIELD (2 hits)'; }
   else if(type === 'speed'){ player.speed = Math.min(player.speed + 80, 720); upgradeMessage = 'Upgrade: SPEED BOOST'; }
   upgradeTimer = 2.0;
@@ -443,7 +443,7 @@ function update(dt){
   }
 
   // spawn upgrades randomly (no time cutoff)
-  if(Math.random() < 0.025 * dt) spawnUpgrade();
+  if(Math.random() < 0.04 * dt) spawnUpgrade();
 
   // move upgrades
   for(let i = upgrades.length - 1; i >= 0; i--){
