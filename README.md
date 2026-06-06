@@ -4,11 +4,11 @@
 
 All you gotta do is click on the link below :>
 
-[**d0dg3 Webpage**](zachharper2011-a11y.github.io/d0dg3/)
+[**d0dg3 Webpage**](jonbutnotreally.github.io/d0dg3/)
 
 
 
 
 ALSO, if you own a TI-84 Plus CE - which i know most of you nerds probably do ;) - i've made a "similar" program for your calculator. Make sure your calculator is jailbroken using [arTIfiCE](https://yvantt.github.io/arTIfiCE/) or Cesium or similar - if running OS 5.5.1 or newer - and that you have [Clibs](https://github.com/CE-Programming/libraries) installed. 
 
-[**TI-84 Version Here**](https://github.com/zachharper2011-a11y/d0dg3/releases)
+[**TI-84 Version Here**](https://github.com/jonbutnotreally/d0dg3/releases)
